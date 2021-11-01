@@ -3,7 +3,7 @@ import "../../../assets/css/style.css";
 
 const Header: React.FC = () => {
   return (
-    <header className="relative beach-background header column text-center  px-5 py-8 rounded-t-xl ">
+    <header className="relative beach-background header column text-center  p-5 rounded-t-xl ">
       <div className="flex justify-between items-center">
         <button className="text-white">
           <span className="icon">
@@ -17,7 +17,7 @@ const Header: React.FC = () => {
           </span>
         </button>
       </div>
-      <div className="date-container">
+      <div className="date-container leading-none">
         <div className="value">18</div>
       </div>
       <div className="day-of-week text-2xl text-white font-medium">Monday</div>
@@ -36,7 +36,7 @@ const Header: React.FC = () => {
 
 const Task: React.FC = () => {
   return (
-    <li className="task flex  justify-between items-center py-3 pr-3 ml-4">
+    <li className="task flex justify-between items-center py-4 pr-3 ml-4 first:pt-8 last:pb-8 border-l">
       <div className="text-xs text-blue-400 px-4 w-20">6 am</div>
       <div className="block pr-6">
         <div className="title text-blue-400 font-semibold">Wake up</div>
@@ -55,7 +55,7 @@ const Task: React.FC = () => {
 
 const TaskList: React.FC = () => {
   return (
-    <ul className="task-list h-2/5 overflow-auto">
+    <ul className="task-list overflow-auto">
       <Task />
       <Task />
       <Task />
@@ -71,7 +71,7 @@ const Index: React.FunctionComponent = () => {
     <>
       <div className="main-background  fixed w-screen h-screen z-0"></div>
       <main className="w-screen h-screen flex justify-center items-center">
-        <div className="card relative z-10  w-96 rounded-xl bg-white shadow-2xl my-20">
+        <div className="card overflow-hidden relative z-10  w-96 rounded-xl bg-white shadow-2xl my-20">
           <Header />
           <TaskList />
         </div>

@@ -8,6 +8,9 @@ module.exports = {
     extend: {
       backgroundColor: ['checked'],
       borderColor: ['checked'],
+      padding: ['first', 'last'],
+      margin: ['first', 'last'],
+
     }
   },
   plugins: [
