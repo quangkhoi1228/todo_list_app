@@ -1,3 +1,7 @@
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import MobileDateTimePicker from "@mui/lab/MobileDateTimePicker";
+import TextField from "@mui/material/TextField";
 import React, { useEffect, useReducer, useState } from "react";
 import "../../../assets/css/style.css";
 import TaskInterface from "../../interface/task";
@@ -9,35 +13,25 @@ const Index: React.FunctionComponent = () => {
   useEffect(() => {
     setInterval(function () {
       setDate(new Date());
-    }, 60 * 1000);
+    }, 5 * 60 * 1000);
   }, []);
 
   //tasks
-  const tasksInitState: TaskInterface[] = [
-    {
-      id: "1",
-      name: "Wake up",
-      description: "Lorem isum Lorem isum Lorem isum Lorem isum",
-      time: "6 am",
-      status: true,
-    },
-    {
-      id: "2",
-      name: "Wake up1",
-      description: "Lorem isum Lorem isum Lorem isum Lorem isum",
-      time: "1 am",
-      status: false,
-    },
-    {
-      id: "3",
-      name: "Wake up3",
-      description: "Lorem isum Lorem isum Lorem isum Lorem isum",
-      time: "9 am",
-      status: true,
-    },
-  ].sort((pre, current) => (pre.time > current.time ? 1 : -1));
+  const tasksInitState: TaskInterface[] = [];
 
   const [tasks, setTasks] = useState(tasksInitState);
+
+  //remove all tasks
+  const removeAllTasks = () => setTasks(tasksInitState);
+
+  //check all tasks
+  const checkAllTasks = () =>
+    setTasks(
+      tasks.map((taskItem: TaskInterface) => {
+        taskItem["status"] = true;
+        return taskItem;
+      })
+    );
 
   //add task
 
@@ -45,6 +39,29 @@ const Index: React.FunctionComponent = () => {
     return action;
   }
   const [isAddingTask, dispatchIsAddingTask] = useReducer(reducerIsAddingTask, false);
+
+  //add new task
+  const defaultDate = new Date(
+    new Date(new Date(new Date().setMinutes(0)).setHours(0)).setDate(new Date().getDate() + 1)
+  );
+  const defaultName = "";
+  const defaultDescription = "";
+
+  const [addTaskTime, setAddTaskTime] = React.useState<Date | null>(defaultDate);
+  const [addTaskName, setAddTaskName] = useState(defaultName);
+  const [addTaskDescription, setAddTaskDescription] = useState(defaultDescription);
+
+  const addTaskHandle = () => {
+    console.log(addTaskName, addTaskDescription, addTaskTime);
+    const newTask: TaskInterface = {
+      id: new Date().getTime().toString(),
+      time: addTaskTime ? addTaskTime.toString() : "",
+      name: addTaskName,
+      description: addTaskDescription,
+      status: false,
+    };
+    setTasks(tasks.concat([newTask]));
+  };
 
   // GUI
 
@@ -75,15 +92,15 @@ const Index: React.FunctionComponent = () => {
     return (
       <header className="relative beach-background header column text-center  p-5 rounded-t-xl ">
         <div className="flex justify-between items-center">
-          <button className="text-white">
+          <button className="text-white" onClick={removeAllTasks}>
             <span className="icon">
-              <i className="fal fa-align-left"></i>
+              <i className="fal fa-trash"></i>
             </span>
           </button>
           <p className="timeline text-md text-white ">Timeline</p>
-          <button className="text-white">
+          <button className="text-white" onClick={checkAllTasks}>
             <span className="icon">
-              <i className="fal fa-eye"></i>
+              <i className="fal fa-check-double"></i>
             </span>
           </button>
         </div>
@@ -131,11 +148,98 @@ const Index: React.FunctionComponent = () => {
   const TaskList: React.FC = () => {
     return (
       <ul className="task-list overflow-auto">
-        {tasks.map((item: any, index: any) => {
-          console.log(item);
-          return <Task key={item.id} data={item} />;
-        })}
+        {tasks.length > 0 ? (
+          tasks.map((item: any, index: any) => {
+            console.log(item);
+            return <Task key={item.id} data={item} />;
+          })
+        ) : (
+          <div className="text-center my-8 text-gray-400 flex justify-center">
+            <span className="icon mr-2">
+              <i className="fal fa-times-circle"></i>
+            </span>
+            <span className="">Task list is empty</span>
+          </div>
+        )}
       </ul>
+    );
+  };
+
+  const TextInput = React.memo<{
+    label: any;
+    value: any;
+    onChange: Function;
+  }>((props) => {
+    return (
+      <TextField
+        label={props.label}
+        variant="outlined"
+        color="info"
+        value={addTaskName}
+        onChange={(e) => props.onChange(e)}
+      />
+    );
+  });
+
+  const AddTaskModal: React.FC = () => {
+    return (
+      <>
+        <header className="p-4 text-center border-b text-gray-400 font-medium">Add Task</header>
+        <section className="p-4 add-task-form">
+          <div className="field">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <MobileDateTimePicker
+                label="Time"
+                renderInput={(params) => <TextField {...params} />}
+                value={addTaskTime}
+                onChange={(newValue) => {
+                  setAddTaskTime(newValue);
+                }}
+              />
+            </LocalizationProvider>
+          </div>
+          <div className="field">
+            <TextInput
+              label="Name"
+              value={addTaskName}
+              onChange={(e: any) => {
+                setAddTaskName(e.target.value);
+              }}
+            />
+          </div>
+          <div className="field">
+            <TextField
+              label="Description"
+              multiline
+              minRows="2"
+              color="info"
+              value={addTaskDescription}
+              onChange={(e) => setAddTaskDescription(e.target.value)}
+              variant="outlined"
+            />
+          </div>
+          <div className="buttons">
+            <button
+              className="bg-yellow-300 py-2 px-5 rounded-md mr-3 text-white  cursor-pointer"
+              onClick={() => addTaskHandle()}
+            >
+              <span className="icon mr-2">
+                <i className="fal fa-plus"></i>
+              </span>
+              <span>Add</span>
+            </button>
+            <button
+              className="bg-gray-300 py-2 px-5 rounded-md mr-3 text-white  cursor-pointer"
+              onClick={() => dispatchIsAddingTask(false)}
+            >
+              <span className="icon mr-2">
+                <i className="fal fa-chevron-left"></i>
+              </span>
+              <span>Back</span>
+            </button>
+          </div>
+        </section>
+      </>
     );
   };
 
@@ -148,7 +252,9 @@ const Index: React.FunctionComponent = () => {
             <Header />
             <TaskList />
           </section>
-          <section className={isAddingTask ? "" : "hidden"}>a</section>
+          <section className={isAddingTask ? "" : "hidden"}>
+            <AddTaskModal />
+          </section>
         </div>
       </main>
     </>
