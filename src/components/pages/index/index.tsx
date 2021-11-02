@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import "../../../assets/css/style.css";
 import TaskInterface from "../../interface/task";
 
 const Index: React.FunctionComponent = () => {
+  //date time
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
@@ -11,6 +12,7 @@ const Index: React.FunctionComponent = () => {
     }, 60 * 1000);
   }, []);
 
+  //tasks
   const tasksInitState: TaskInterface[] = [
     {
       id: "1",
@@ -36,6 +38,15 @@ const Index: React.FunctionComponent = () => {
   ].sort((pre, current) => (pre.time > current.time ? 1 : -1));
 
   const [tasks, setTasks] = useState(tasksInitState);
+
+  //add task
+
+  function reducerIsAddingTask(state: any, action: any) {
+    return action;
+  }
+  const [isAddingTask, dispatchIsAddingTask] = useReducer(reducerIsAddingTask, false);
+
+  // GUI
 
   const Header: React.FC = () => {
     const dayOfWeek: { [key: string]: any } = {
@@ -84,7 +95,10 @@ const Index: React.FunctionComponent = () => {
           <span className="month">{month[date.getMonth()]} </span>
           <span className="year">{date.getFullYear()}</span>
         </div>
-        <button className="add-task-button bg-yellow-400 w-12 h-12 text-white rounded-full absolute  -bottom-6 right-10 shadow-md  hover:bg-yellow-500  transition  duration-500">
+        <button
+          className="add-task-button bg-yellow-400 w-12 h-12 text-white rounded-full absolute  -bottom-6 right-10 shadow-md  hover:bg-yellow-500  transition  duration-500"
+          onClick={() => dispatchIsAddingTask(true)}
+        >
           <span className="icon ">
             <i className="fal fa-plus"></i>
           </span>
@@ -130,8 +144,11 @@ const Index: React.FunctionComponent = () => {
       <div className="main-background  fixed w-screen h-screen z-0"></div>
       <main className="w-screen h-screen flex justify-center items-center">
         <div className="card overflow-hidden relative z-10  w-96 rounded-xl bg-white shadow-2xl my-20">
-          <Header />
-          <TaskList />
+          <section className={isAddingTask ? "hidden" : ""}>
+            <Header />
+            <TaskList />
+          </section>
+          <section className={isAddingTask ? "" : "hidden"}>a</section>
         </div>
       </main>
     </>
@@ -139,6 +156,3 @@ const Index: React.FunctionComponent = () => {
 };
 
 export default Index;
-function reducer(reducer: any, initialState: any, init: any): [any, any] {
-  throw new Error("Function not implemented.");
-}
