@@ -165,26 +165,10 @@ const Index: React.FunctionComponent = () => {
     );
   };
 
-  const TextInput = React.memo<{
-    label: any;
-    value: any;
-    onChange: Function;
-  }>((props) => {
-    return (
-      <TextField
-        label={props.label}
-        variant="outlined"
-        color="info"
-        value={addTaskName}
-        onChange={(e) => props.onChange(e)}
-      />
-    );
-  });
-
   const AddTaskModal: React.FC = () => {
     return (
       <>
-        <header className="p-4 text-center border-b text-gray-400 font-medium">Add Task</header>
+        <header className="p-4 text-center border-b text-blue-400 font-medium">Add Task</header>
         <section className="p-4 add-task-form">
           <div className="field">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -199,24 +183,10 @@ const Index: React.FunctionComponent = () => {
             </LocalizationProvider>
           </div>
           <div className="field">
-            <TextInput
-              label="Name"
-              value={addTaskName}
-              onChange={(e: any) => {
-                setAddTaskName(e.target.value);
-              }}
-            />
+            <TextField label="Name" color="info" variant="outlined" value={addTaskName} />
           </div>
           <div className="field">
-            <TextField
-              label="Description"
-              multiline
-              minRows="2"
-              color="info"
-              value={addTaskDescription}
-              onChange={(e) => setAddTaskDescription(e.target.value)}
-              variant="outlined"
-            />
+            <TextField label="Description" multiline minRows="2" color="info" variant="outlined" value={addTaskName} />
           </div>
           <div className="buttons">
             <button
