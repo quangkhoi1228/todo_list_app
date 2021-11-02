@@ -245,8 +245,8 @@ const Index: React.FunctionComponent = () => {
 
   return (
     <>
-      <div className="main-background  fixed w-screen h-screen z-0"></div>
-      <main className="w-screen h-screen flex justify-center items-center">
+      <div className="main-background  fixed w-screen h-screen z-0 overflow-hidden"></div>
+      <main className="w-screen h-screen flex justify-center items-center overflow-hidden">
         <div className="card overflow-hidden relative z-10  w-96 rounded-xl bg-white shadow-2xl my-20">
           <section className={isAddingTask ? "hidden" : ""}>
             <Header />
