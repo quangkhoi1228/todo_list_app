@@ -4,6 +4,8 @@ interface TaskInterface {
   time: number;
   description: string;
   status: boolean;
+  diff: number;
+  hightlight: string;
 }
 
 export default TaskInterface;

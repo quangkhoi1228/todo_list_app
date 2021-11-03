@@ -6,6 +6,7 @@ import dateFormat from "dateformat";
 import React, { useEffect, useReducer, useState } from "react";
 import "../../../assets/css/style.css";
 import TaskInterface from "../../interface/task";
+import DateTimeUtil from "../../utils/datetime";
 
 const Index: React.FunctionComponent = () => {
   //date time
@@ -105,7 +106,7 @@ const Index: React.FunctionComponent = () => {
           <span className="year">{date.getFullYear()}</span>
         </div>
         <button
-          className="add-task-button bg-yellow-400 w-12 h-12 text-white rounded-full absolute  -bottom-6 right-10 shadow-md  hover:bg-yellow-500  transition  duration-500"
+          className="add-task-button bg-yellow-400 w-12 h-12 text-white rounded-full absolute  -bottom-6 right-10 shadow-md  hover:bg-yellow-500  transition  duration-500 z-10"
           onClick={() => dispatchIsAddingTask(true)}
         >
           <span className="icon ">
@@ -135,7 +136,10 @@ const Index: React.FunctionComponent = () => {
       );
     };
     return (
-      <li className="task flex justify-between items-center py-4 pr-3 ml-4 first:pt-8 last:pb-8 border-l">
+      <li
+        className="task flex justify-between items-center py-4 pr-3 ml-4 first:pt-8 last:pb-8 border-l"
+        data-hightlight={data.hightlight}
+      >
         <div className="text-xs text-blue-400 px-4 w-30 ">{dateFormat(new Date(data.time), "dd/mm/yyyy hh:MM")}</div>
         <div className="block pr-6 w-1/2">
           <div className="title text-blue-400 font-semibold truncate">{data.name}</div>
@@ -156,11 +160,38 @@ const Index: React.FunctionComponent = () => {
   };
 
   const TaskList: React.FC = () => {
+    const now = new Date();
+    let nextItemValue: any;
+    const preprocessTask: TaskInterface[] = tasks
+      .map((taskItem: TaskInterface) => {
+        let time = new Date(taskItem.time);
+        let diff = DateTimeUtil.getDifferenceInSeconds(now, time);
+        if (!nextItemValue) {
+          nextItemValue = diff;
+        } else {
+          if (diff > 0 && diff < nextItemValue) {
+            nextItemValue = diff;
+          }
+        }
+        return Object.assign({}, taskItem, { diff });
+      })
+      .map((taskItem: TaskInterface) => {
+        let hightlight: any;
+        if (taskItem.diff === nextItemValue) {
+          hightlight = "next";
+        } else {
+          hightlight = taskItem.diff < nextItemValue ? "pre" : "afterNext";
+        }
+
+        console.log(hightlight,taskItem.diff,nextItemValue );
+
+        return Object.assign({}, taskItem, { hightlight });
+      });
+
     return (
-      <ul className="task-list overflow-auto">
-        {tasks.length > 0 ? (
-          tasks.map((item: any, index: any) => {
-            console.log(item);
+      <ul className="task-list overflow-auto ">
+        {preprocessTask.length > 0 ? (
+          preprocessTask.map((item: any, index: any) => {
             return <Task key={item.id} data={item} />;
           })
         ) : (
@@ -199,6 +230,8 @@ const Index: React.FunctionComponent = () => {
           name: addTaskName,
           description: addTaskDescription,
           status: false,
+          diff: 0,
+          hightlight: "",
         };
         setTaskStorage(getTaskStorage().concat([newTask]));
         dispatchIsAddingTask(false);

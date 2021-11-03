@@ -24,6 +24,17 @@ html
 .task-list
     max-height: 50vh
 
+$next-hightlight-color: #3bd49c
+$pre-hightlight-color: #9ca3af
+
+=data-hightlight($value,  $hightlight-color)
+    &[data-hightlight="#{$value}"]
+        &::before
+            background: $hightlight-color
+        .text-blue-400, .text-blue-300,.text-blue-500
+            color: $hightlight-color
+        .border-blue-300
+            border-color: $hightlight-color
 .task
     position: relative
     &::before
@@ -35,6 +46,10 @@ html
         position: absolute
         left: -3px
         border-radius: 25px
+    +data-hightlight('next',  $next-hightlight-color)
+    +data-hightlight('pre',  $pre-hightlight-color)
+
+    
 
 
 .field

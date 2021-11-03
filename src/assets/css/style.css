@@ -41,6 +41,24 @@ html {
   left: -3px;
   border-radius: 25px;
 }
+.task[data-hightlight=next]::before {
+  background: #3bd49c;
+}
+.task[data-hightlight=next] .text-blue-400, .task[data-hightlight=next] .text-blue-300, .task[data-hightlight=next] .text-blue-500 {
+  color: #3bd49c;
+}
+.task[data-hightlight=next] .border-blue-300 {
+  border-color: #3bd49c;
+}
+.task[data-hightlight=pre]::before {
+  background: #9ca3af;
+}
+.task[data-hightlight=pre] .text-blue-400, .task[data-hightlight=pre] .text-blue-300, .task[data-hightlight=pre] .text-blue-500 {
+  color: #9ca3af;
+}
+.task[data-hightlight=pre] .border-blue-300 {
+  border-color: #9ca3af;
+}
 
 .field {
   margin: 0 0 1rem 0;
