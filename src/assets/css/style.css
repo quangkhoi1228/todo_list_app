@@ -28,13 +28,16 @@ html {
   max-height: 50vh;
 }
 
+.task {
+  position: relative;
+}
 .task::before {
   display: inline;
   content: "";
   height: 5px;
   width: 5px;
   background: #60a5fa;
-  position: relative;
+  position: absolute;
   left: -3px;
   border-radius: 25px;
 }

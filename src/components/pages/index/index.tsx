@@ -2,6 +2,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import MobileDateTimePicker from "@mui/lab/MobileDateTimePicker";
 import TextField from "@mui/material/TextField";
+import dateFormat from "dateformat";
 import React, { useEffect, useReducer, useState } from "react";
 import "../../../assets/css/style.css";
 import TaskInterface from "../../interface/task";
@@ -19,14 +20,28 @@ const Index: React.FunctionComponent = () => {
   //tasks
   const tasksInitState: TaskInterface[] = [];
 
-  const [tasks, setTasks] = useState(tasksInitState);
+  const taskStorageKey = "taskStorageKey";
+  const sortTask = (tasksInput: TaskInterface[]) => {
+    return tasksInput.sort((pre, current) => (pre.time > current.time ? -1 : 1));
+  };
+  const getTaskStorage: any = () => {
+    const saved: string | null = localStorage.getItem(taskStorageKey);
+    return saved ? sortTask(JSON.parse(saved)) : tasksInitState;
+  };
+  const [tasks, setTasks] = useState(() => {
+    return getTaskStorage();
+  });
+  const setTaskStorage = (value: TaskInterface[]) => {
+    setTasks(sortTask(value));
+    localStorage.setItem(taskStorageKey, JSON.stringify(sortTask(value)));
+  };
 
   //remove all tasks
-  const removeAllTasks = () => setTasks(tasksInitState);
+  const removeAllTasks = () => setTaskStorage(tasksInitState);
 
   //check all tasks
   const checkAllTasks = () =>
-    setTasks(
+    setTaskStorage(
       tasks.map((taskItem: TaskInterface) => {
         taskItem["status"] = true;
         return taskItem;
@@ -39,29 +54,6 @@ const Index: React.FunctionComponent = () => {
     return action;
   }
   const [isAddingTask, dispatchIsAddingTask] = useReducer(reducerIsAddingTask, false);
-
-  //add new task
-  const defaultDate = new Date(
-    new Date(new Date(new Date().setMinutes(0)).setHours(0)).setDate(new Date().getDate() + 1)
-  );
-  const defaultName = "";
-  const defaultDescription = "";
-
-  const [addTaskTime, setAddTaskTime] = React.useState<Date | null>(defaultDate);
-  const [addTaskName, setAddTaskName] = useState(defaultName);
-  const [addTaskDescription, setAddTaskDescription] = useState(defaultDescription);
-
-  const addTaskHandle = () => {
-    console.log(addTaskName, addTaskDescription, addTaskTime);
-    const newTask: TaskInterface = {
-      id: new Date().getTime().toString(),
-      time: addTaskTime ? addTaskTime.toString() : "",
-      name: addTaskName,
-      description: addTaskDescription,
-      status: false,
-    };
-    setTasks(tasks.concat([newTask]));
-  };
 
   // GUI
 
@@ -127,15 +119,33 @@ const Index: React.FunctionComponent = () => {
   const Task: React.FC<{
     data: TaskInterface;
   }> = ({ data }) => {
+    const changeStatusTask = (currentItem: TaskInterface) => {
+      setTaskStorage(
+        getTaskStorage().map((item: TaskInterface) =>
+          item.id === currentItem.id
+            ? {
+                id: item.id,
+                name: item.name,
+                description: item.description,
+                time: item.time,
+                status: !item.status,
+              }
+            : item
+        )
+      );
+    };
     return (
       <li className="task flex justify-between items-center py-4 pr-3 ml-4 first:pt-8 last:pb-8 border-l">
-        <div className="text-xs text-blue-400 px-4 w-20">{data.time}</div>
+        <div className="text-xs text-blue-400 px-4 w-25">{dateFormat(new Date(data.time), "dd/mm/yyyy hh:MM")}</div>
         <div className="block pr-6">
           <div className="title text-blue-400 font-semibold">{data.name}</div>
           <div className="description text-blue-300 text-xs ">{data.description}</div>
         </div>
         <div className="">
-          <button className="w-6 h-6 border border-blue-300 rounded-md text-white">
+          <button
+            className="w-6 h-6 border border-blue-300 rounded-md text-white"
+            onClick={(e) => changeStatusTask(data)}
+          >
             <span className={data.status ? `icon text-blue-500` : `icon  `}>
               <i className="fal fa-check"></i>
             </span>
@@ -166,15 +176,45 @@ const Index: React.FunctionComponent = () => {
   };
 
   const AddTaskModal: React.FC = () => {
+    //add new task
+    // const defaultDate = new Date(
+    //   new Date(new Date(new Date().setMinutes(0)).setHours(0)).setDate(new Date().getDate() + 1)
+    // );
+    const defaultName = "";
+    const defaultDescription = "";
+
+    const [addTaskTime, setAddTaskTime] = React.useState<Date | null>(null);
+    const [addTaskName, setAddTaskName] = useState(defaultName);
+    const [addTaskDescription, setAddTaskDescription] = useState(defaultDescription);
+
+    const addTaskHandle = (e: React.FormEvent) => {
+      e.preventDefault();
+      if ([addTaskName, addTaskDescription, addTaskName].map((item) => item.trim()).includes("")) {
+        alert("Please fill all input");
+        return false;
+      } else {
+        const newTask: TaskInterface = {
+          id: new Date().getTime(),
+          time: addTaskTime?.getTime() || new Date().getTime(),
+          name: addTaskName,
+          description: addTaskDescription,
+          status: false,
+        };
+        setTaskStorage(getTaskStorage().concat([newTask]));
+        dispatchIsAddingTask(false);
+        return true;
+      }
+    };
+
     return (
       <>
         <header className="p-4 text-center border-b text-blue-400 font-medium">Add Task</header>
-        <section className="p-4 add-task-form">
+        <form className="p-4 add-task-form" onSubmit={addTaskHandle}>
           <div className="field">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <MobileDateTimePicker
                 label="Time"
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => <TextField {...params} required />}
                 value={addTaskTime}
                 onChange={(newValue) => {
                   setAddTaskTime(newValue);
@@ -183,16 +223,31 @@ const Index: React.FunctionComponent = () => {
             </LocalizationProvider>
           </div>
           <div className="field">
-            <TextField label="Name" color="info" variant="outlined" value={addTaskName} />
+            <TextField
+              type="text"
+              label="Name"
+              color="info"
+              variant="outlined"
+              value={addTaskName}
+              onChange={(e) => setAddTaskName(e.target.value)}
+              required
+            />
           </div>
           <div className="field">
-            <TextField label="Description" multiline minRows="2" color="info" variant="outlined" value={addTaskName} />
+            <TextField
+              type="text"
+              label="Description"
+              multiline
+              minRows="2"
+              color="info"
+              variant="outlined"
+              value={addTaskDescription}
+              onChange={(e) => setAddTaskDescription(e.target.value)}
+              required
+            />
           </div>
           <div className="buttons">
-            <button
-              className="bg-yellow-300 py-2 px-5 rounded-md mr-3 text-white  cursor-pointer"
-              onClick={() => addTaskHandle()}
-            >
+            <button type="submit" className="bg-yellow-300 py-2 px-5 rounded-md mr-3 text-white  cursor-pointer">
               <span className="icon mr-2">
                 <i className="fal fa-plus"></i>
               </span>
@@ -208,7 +263,7 @@ const Index: React.FunctionComponent = () => {
               <span>Back</span>
             </button>
           </div>
-        </section>
+        </form>
       </>
     );
   };

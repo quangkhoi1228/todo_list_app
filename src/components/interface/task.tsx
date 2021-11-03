@@ -1,7 +1,7 @@
 interface TaskInterface {
-  id: string;
+  id: number;
   name: string;
-  time: string;
+  time: number;
   description: string;
   status: boolean;
 }
