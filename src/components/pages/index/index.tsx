@@ -136,9 +136,9 @@ const Index: React.FunctionComponent = () => {
     };
     return (
       <li className="task flex justify-between items-center py-4 pr-3 ml-4 first:pt-8 last:pb-8 border-l">
-        <div className="text-xs text-blue-400 px-4 w-25">{dateFormat(new Date(data.time), "dd/mm/yyyy hh:MM")}</div>
+        <div className="text-xs text-blue-400 px-4 w-30 ">{dateFormat(new Date(data.time), "dd/mm/yyyy hh:MM")}</div>
         <div className="block pr-6 w-1/2">
-          <div className="title text-blue-400 font-semibold">{data.name}</div>
+          <div className="title text-blue-400 font-semibold truncate">{data.name}</div>
           <div className="description text-blue-300 text-xs ">{data.description}</div>
         </div>
         <div className="">
